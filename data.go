@@ -1,6 +1,6 @@
 package main
 
-func SeedData() CandleCollection {
+func SeedData(height int) CandleCollection {
 	candles := []*Candle{
 		NewCandle(560.36, 577.86, 569.20, 565.20),
 		NewCandle(563.10, 575.87, 565.20, 565.78),
@@ -153,5 +153,5 @@ func SeedData() CandleCollection {
 		NewCandle(743.83, 832.99, 770.91, 799.40),
 	}
 
-	return NewCollection(candles, 10)
+	return NewCollection(candles, height)
 }

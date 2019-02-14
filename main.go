@@ -25,8 +25,11 @@ type Record struct {
 }
 
 func main() {
-	fmt.Println(string('╽'))
-	b := candlestick(SeedData())
+
+	// for _, c := range data.data {
+	// 	fmt.Print(data.renderCandleAt(c, 0, true))
+	// }
+	b := candlestick()
 	err := tview.NewApplication().SetRoot(b, true).Run()
 	if err != nil {
 
@@ -52,17 +55,35 @@ func load() []*Record {
 	return records
 }
 
-func candlestick(cc CandleCollection) *tview.Box {
+func candlestick() *tview.Box {
 	b := tview.NewBox()
 
 	// maxValue := 100
 	// minValue := -100
-
+	b.SetBorder(true)
+	b.SetTitle("Candlestick pre-alpha")
 	b.SetDrawFunc(func(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
-		for i, candle := range cc.data {
-			ch := cc.renderCandleAt(candle, 10, true)
+		cc := SeedData(height)
 
-			screen.SetContent(i, 10, []rune(ch)[0], nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		for i, candle := range cc.data {
+			for cy := y + 1; cy < y+height-1; cy++ {
+				ch := cc.renderCandleAt(candle, cy)
+				rns := []rune(ch)
+				r := rune(' ')
+				if len(rns) > 0 {
+					r = rns[len(rns)-1]
+				}
+				colour := tcell.ColorRed
+				if candle.priceMove() == UP_MOVE {
+					colour = tcell.ColorGreen
+				}
+				// if string(r) != SYMBOL_NOTHING {
+				// 	fmt.Println(string(r))
+				// }
+				screen.SetContent(i+x+1, cy, r, nil, tcell.StyleDefault.Foreground(colour))
+			}
+			// fmt.Println(candle.end_value)
+			// break
 		}
 		return b.GetInnerRect()
 	})

@@ -3,6 +3,7 @@ package main
 import "math"
 
 const SYMBOL_STICK = "│"
+
 const SYMBOL_CANDLE = "┃"
 const SYMBOL_HALF_TOP = "╽"
 const SYMBOL_HALF_BOTTOM = "╿"
@@ -13,7 +14,7 @@ const SYMBOL_HALF_STICK_BOTTOM = "╵"
 const SYMBOL_NOTHING = " "
 
 const COLOR_NEUTRAL = "WHITE"
-const COLOR_POSITIVE = "GREEM"
+const COLOR_POSITIVE = "GREEN"
 const COLOR_NEGATIVE = "RED"
 
 const UP_MOVE = 1
@@ -101,89 +102,50 @@ func (cc *CandleCollection) candleColor(candle *Candle) string {
 
 	return COLOR_NEGATIVE
 }
-func (cc *CandleCollection) renderCandleAt(candle *Candle, heightUnit int, colorize bool) string {
+func (cc *CandleCollection) renderCandleAt(candle *Candle, heightUnit int) string {
 	heightUnit64 := float64(heightUnit)
 
-	ts := cc.toHeightUnits(candle.topStick())
-	tc := cc.toHeightUnits(candle.topCandle())
-	bs := cc.toHeightUnits(candle.bottomStick())
-	bc := cc.toHeightUnits(candle.bottomCandle())
+	scaledTopStick := cc.toHeightUnits(candle.topStick())
+	scaledTopCandle := cc.toHeightUnits(candle.topCandle())
+	scaledBottomStick := cc.toHeightUnits(candle.bottomStick())
+	scaledBottomCandle := cc.toHeightUnits(candle.bottomCandle())
 
-	if math.Ceil(ts) >= heightUnit64 && heightUnit64 >= math.Floor(tc) {
-		if tc-heightUnit64 > 0.75 {
-			if colorize {
-				return cc.candleColor(candle) + SYMBOL_CANDLE
-			}
+	if math.Ceil(scaledTopStick) >= heightUnit64 && heightUnit64 >= math.Floor(scaledTopCandle) {
+		if scaledTopCandle-heightUnit64 > 0.75 {
 			return SYMBOL_CANDLE
-		} else if (tc - heightUnit64) > 0.25 {
-			if (ts - heightUnit64) > 0.75 {
-				if colorize {
-					return cc.candleColor(candle) + SYMBOL_HALF_TOP
-				}
+		} else if (scaledTopCandle - heightUnit64) > 0.25 {
+			if (scaledTopStick - heightUnit64) > 0.75 {
 				return SYMBOL_HALF_TOP
-			} else {
-				if colorize {
-					return cc.candleColor(candle) + SYMBOL_HALF_CANDLE_TOP
-				}
-				return SYMBOL_HALF_CANDLE_TOP
 			}
+			return SYMBOL_HALF_CANDLE_TOP
 		} else {
-			if (ts - heightUnit64) > 0.75 {
-				if colorize {
-					return COLOR_NEUTRAL + SYMBOL_STICK
-				}
+			if (scaledTopStick - heightUnit64) > 0.75 {
 				return SYMBOL_STICK
-			} else if (ts - heightUnit64) > 0.25 {
-				if colorize {
-					return COLOR_NEUTRAL + SYMBOL_HALF_STICK_TOP
-				}
+			} else if (scaledTopStick - heightUnit64) > 0.25 {
 				return SYMBOL_HALF_STICK_TOP
 			} else {
 				return SYMBOL_NOTHING
 			}
 		}
-	} else if math.Floor(tc) >= heightUnit64 && heightUnit64 >= math.Ceil(bc) {
-		if colorize {
-			return cc.candleColor(candle) + SYMBOL_CANDLE
-		}
+	} else if math.Floor(scaledTopCandle) >= heightUnit64 && heightUnit64 >= math.Ceil(scaledBottomCandle) {
 		return SYMBOL_CANDLE
-	} else if math.Ceil(bc) >= heightUnit64 && heightUnit64 >= math.Floor(bs) {
-		if (bc - heightUnit64) < 0.25 {
-			if colorize {
-				return cc.candleColor(candle) + SYMBOL_CANDLE
-			}
+	} else if math.Ceil(scaledBottomCandle) >= heightUnit64 && heightUnit64 >= math.Floor(scaledBottomStick) {
+		if (scaledBottomCandle - heightUnit64) < 0.25 {
 			return SYMBOL_CANDLE
-		} else if (bc - heightUnit64) < 0.75 {
-			if (ts - heightUnit64) > 0.25 {
-				if colorize {
-					return cc.candleColor(candle) + SYMBOL_HALF_BOTTOM
-				}
+		} else if (scaledBottomCandle - heightUnit64) < 0.75 {
+			if (scaledBottomStick - heightUnit64) < 0.25 {
 				return SYMBOL_HALF_BOTTOM
-			} else {
-				if colorize {
-					return cc.candleColor(candle) + SYMBOL_HALF_CANDLE_BOTTOM
-				}
-				return SYMBOL_HALF_CANDLE_BOTTOM
 			}
+			return SYMBOL_HALF_CANDLE_BOTTOM
 		} else {
-			if (bs - heightUnit64) < 0.25 {
-
-				if colorize {
-					return COLOR_NEUTRAL + SYMBOL_STICK
-				}
+			if (scaledBottomStick - heightUnit64) < 0.25 {
 				return SYMBOL_STICK
-			} else if (bs - heightUnit64) < 0.75 {
-				if colorize {
-					return COLOR_NEUTRAL + SYMBOL_HALF_STICK_BOTTOM
-				}
+			} else if (scaledBottomStick - heightUnit64) < 0.75 {
 				return SYMBOL_HALF_STICK_BOTTOM
 			} else {
-
 				return SYMBOL_NOTHING
 			}
 		}
-	} else {
-		return SYMBOL_NOTHING
 	}
 	return SYMBOL_NOTHING
 }
