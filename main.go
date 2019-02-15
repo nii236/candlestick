@@ -63,11 +63,16 @@ func candlestick() *tview.Box {
 	b.SetBorder(true)
 	b.SetTitle("Candlestick pre-alpha")
 	b.SetDrawFunc(func(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
+		chartHeight := height - 2
 		cc := SeedData(height)
-
+		candleCount := width - 15 - 5
+		if candleCount > len(cc.data) {
+			candleCount = len(cc.data)
+		}
+		cc.data = cc.data[len(cc.data)-candleCount : len(cc.data)-1]
 		for i, candle := range cc.data {
-			for cy := y + 1; cy < y+height-1; cy++ {
-				ch := cc.renderCandleAt(candle, cy)
+			for cy := 2; cy < y+chartHeight; cy++ {
+				ch := cc.renderCandleAt(candle, height-cy)
 				rns := []rune(ch)
 				r := rune(' ')
 				if len(rns) > 0 {
@@ -77,13 +82,20 @@ func candlestick() *tview.Box {
 				if candle.priceMove() == UP_MOVE {
 					colour = tcell.ColorGreen
 				}
+				if string(r) == SYMBOL_NOTHING {
+					colour = tcell.ColorWhite
+				}
 				// if string(r) != SYMBOL_NOTHING {
 				// 	fmt.Println(string(r))
 				// }
-				screen.SetContent(i+x+1, cy, r, nil, tcell.StyleDefault.Foreground(colour))
+				screen.SetContent(i+x+15, cy, r, nil, tcell.StyleDefault.Foreground(colour))
 			}
 			// fmt.Println(candle.end_value)
 			// break
+		}
+
+		for cy := 0; cy < y+height-1; cy++ {
+			tview.Print(screen, cc.renderAxesAt(height-cy), 0, cy, 15, tview.AlignRight, tcell.ColorYellow)
 		}
 		return b.GetInnerRect()
 	})

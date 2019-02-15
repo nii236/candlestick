@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 const SYMBOL_STICK = "│"
 
@@ -10,7 +13,9 @@ const SYMBOL_HALF_BOTTOM = "╿"
 const SYMBOL_HALF_CANDLE_TOP = "╻"
 const SYMBOL_HALF_CANDLE_BOTTOM = "╹"
 const SYMBOL_HALF_STICK_TOP = "╷"
+
 const SYMBOL_HALF_STICK_BOTTOM = "╵"
+
 const SYMBOL_NOTHING = " "
 
 const COLOR_NEUTRAL = "WHITE"
@@ -150,12 +155,12 @@ func (cc *CandleCollection) renderCandleAt(candle *Candle, heightUnit int) strin
 	return SYMBOL_NOTHING
 }
 
-// func (cc *CandleCollection) draw(colorize bool) string {
-// 	output_str = "\n"
-
-// 	return output_str
-
-// }
+func (cc *CandleCollection) renderAxesAt(y int) string {
+	if y%4 == 0 {
+		return fmt.Sprintf("%.2f", cc.globalMinValue+(float64(y)*(cc.globalMaxValue-cc.globalMinValue)/float64(cc.height)))
+	}
+	return ""
+}
 
 // for y in reversed(range(0, self._height)):
 //     if y % 4 == 0:
