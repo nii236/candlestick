@@ -1,74 +1,54 @@
-package main
+package widget
 
 import (
 	"fmt"
 	"math"
 )
 
-const SYMBOL_STICK = "│"
-
-const SYMBOL_CANDLE = "┃"
-const SYMBOL_HALF_TOP = "╽"
-const SYMBOL_HALF_BOTTOM = "╿"
-const SYMBOL_HALF_CANDLE_TOP = "╻"
-const SYMBOL_HALF_CANDLE_BOTTOM = "╹"
-const SYMBOL_HALF_STICK_TOP = "╷"
-
-const SYMBOL_HALF_STICK_BOTTOM = "╵"
-
-const SYMBOL_NOTHING = " "
-
-const COLOR_NEUTRAL = "WHITE"
-const COLOR_POSITIVE = "GREEN"
-const COLOR_NEGATIVE = "RED"
-
-const UP_MOVE = 1
-const DOWN_MOVE = -1
-
 type Candle struct {
-	min_value   float64
-	max_value   float64
-	begin_value float64
-	end_value   float64
+	MinValue   float64
+	MaxValue   float64
+	BeginValue float64
+	EndValue   float64
 }
 
-func NewCandle(min_value float64, max_value float64, begin_value float64, end_value float64) *Candle {
+func NewCandle(MinValue float64, MaxValue float64, BeginValue float64, EndValue float64) *Candle {
 	return &Candle{
-		min_value:   min_value,
-		max_value:   max_value,
-		begin_value: begin_value,
-		end_value:   end_value,
+		MinValue:   MinValue,
+		MaxValue:   MaxValue,
+		BeginValue: BeginValue,
+		EndValue:   EndValue,
 	}
 }
 
 func (c *Candle) topStick() float64 {
-	return c.max_value
+	return c.MaxValue
 }
 
 func (c *Candle) bottomStick() float64 {
-	return c.min_value
+	return c.MinValue
 }
 
 func (c *Candle) topCandle() float64 {
-	return math.Max(c.begin_value, c.end_value)
+	return math.Max(c.BeginValue, c.EndValue)
 }
 
 func (c *Candle) bottomCandle() float64 {
-	return math.Min(c.begin_value, c.end_value)
+	return math.Min(c.BeginValue, c.EndValue)
 }
 
 func (c *Candle) priceMove() int {
-	if c.begin_value > c.end_value {
-		return DOWN_MOVE
+	if c.BeginValue > c.EndValue {
+		return DownMove
 	}
-	return UP_MOVE
+	return UpMove
 }
 
 type CandleCollection struct {
-	height         int
-	data           []*Candle
-	globalMinValue float64
-	globalMaxValue float64
+	Height         int
+	Data           []*Candle
+	GlobalMinValue float64
+	GlobalMaxValue float64
 }
 
 func NewCollection(candles []*Candle, height int) CandleCollection {
@@ -87,25 +67,25 @@ func NewCollection(candles []*Candle, height int) CandleCollection {
 	}
 
 	cc := CandleCollection{
-		height:         height,
-		data:           candles,
-		globalMinValue: globalMinValue,
-		globalMaxValue: globalMaxValue,
+		Height:         height,
+		Data:           candles,
+		GlobalMinValue: globalMinValue,
+		GlobalMaxValue: globalMaxValue,
 	}
 
 	return cc
 }
 func (cc *CandleCollection) toHeightUnits(x float64) float64 {
-	return (x - cc.globalMinValue) / (cc.globalMaxValue - cc.globalMinValue) * float64(cc.height)
+	return (x - cc.GlobalMinValue) / (cc.GlobalMaxValue - cc.GlobalMinValue) * float64(cc.Height)
 }
 
 func (cc *CandleCollection) candleColor(candle *Candle) string {
 
-	if candle.priceMove() == UP_MOVE {
-		return COLOR_POSITIVE
+	if candle.priceMove() == UpMove {
+		return ColorPositive
 	}
 
-	return COLOR_NEGATIVE
+	return ColorNegative
 }
 func (cc *CandleCollection) renderCandleAt(candle *Candle, heightUnit int) string {
 	heightUnit64 := float64(heightUnit)
@@ -117,47 +97,47 @@ func (cc *CandleCollection) renderCandleAt(candle *Candle, heightUnit int) strin
 
 	if math.Ceil(scaledTopStick) >= heightUnit64 && heightUnit64 >= math.Floor(scaledTopCandle) {
 		if scaledTopCandle-heightUnit64 > 0.75 {
-			return SYMBOL_CANDLE
+			return SymbolCandle
 		} else if (scaledTopCandle - heightUnit64) > 0.25 {
 			if (scaledTopStick - heightUnit64) > 0.75 {
-				return SYMBOL_HALF_TOP
+				return SymbolHalfTop
 			}
-			return SYMBOL_HALF_CANDLE_TOP
+			return SymbolHalfCandleTop
 		} else {
 			if (scaledTopStick - heightUnit64) > 0.75 {
-				return SYMBOL_STICK
+				return SymbolStick
 			} else if (scaledTopStick - heightUnit64) > 0.25 {
-				return SYMBOL_HALF_STICK_TOP
+				return SymbolHalfStickTop
 			} else {
-				return SYMBOL_NOTHING
+				return SymbolNothing
 			}
 		}
 	} else if math.Floor(scaledTopCandle) >= heightUnit64 && heightUnit64 >= math.Ceil(scaledBottomCandle) {
-		return SYMBOL_CANDLE
+		return SymbolCandle
 	} else if math.Ceil(scaledBottomCandle) >= heightUnit64 && heightUnit64 >= math.Floor(scaledBottomStick) {
 		if (scaledBottomCandle - heightUnit64) < 0.25 {
-			return SYMBOL_CANDLE
+			return SymbolCandle
 		} else if (scaledBottomCandle - heightUnit64) < 0.75 {
 			if (scaledBottomStick - heightUnit64) < 0.25 {
-				return SYMBOL_HALF_BOTTOM
+				return SymbolHalfBottom
 			}
-			return SYMBOL_HALF_CANDLE_BOTTOM
+			return SymbolHalfCandleBottom
 		} else {
 			if (scaledBottomStick - heightUnit64) < 0.25 {
-				return SYMBOL_STICK
+				return SymbolStick
 			} else if (scaledBottomStick - heightUnit64) < 0.75 {
-				return SYMBOL_HALF_STICK_BOTTOM
+				return SymbolHalfStickBottom
 			} else {
-				return SYMBOL_NOTHING
+				return SymbolNothing
 			}
 		}
 	}
-	return SYMBOL_NOTHING
+	return SymbolNothing
 }
 
 func (cc *CandleCollection) renderAxesAt(y int) string {
 	if y%4 == 0 {
-		return fmt.Sprintf("%.2f", cc.globalMinValue+(float64(y)*(cc.globalMaxValue-cc.globalMinValue)/float64(cc.height)))
+		return fmt.Sprintf("%.2f", cc.GlobalMinValue+(float64(y)*(cc.GlobalMaxValue-cc.GlobalMinValue)/float64(cc.Height)))
 	}
 	return ""
 }
