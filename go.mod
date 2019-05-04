@@ -1,4 +1,4 @@
-module candlestick
+module github.com/nii236/candlestick
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
